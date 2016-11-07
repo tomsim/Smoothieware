@@ -222,6 +222,51 @@ void WatchScreen::display_menu_line(uint16_t line)
     switch ( line ) {
         case 0:
         {
+            auto& tm = this->temp_controllers;
+            if(tm.size() > 0) {
+                struct pad_temperature temp = getTemperatures(tm[0]);
+                int t  = std::min(999, (int)roundf(temp.current_temperature));
+                int tt = roundf(temp.target_temperature);
+
+                THEPANEL->lcd->printf("%s:%03d/%03d ", temp.designator.substr(0, 2).c_str(), t, tt);
+            }
+            THEPANEL->lcd->setCursor(13, 0); // col, row
+            THEPANEL->lcd->printf("X%7.2f", round(this->pos[0]));
+            break;
+        }
+        case 1:
+        {
+            auto& tm = this->temp_controllers;
+            if(tm.size() > 1) {
+                struct pad_temperature temp = getTemperatures(tm[1]);
+                int t  = std::min(999, (int)roundf(temp.current_temperature));
+                int tt = roundf(temp.target_temperature);
+
+                THEPANEL->lcd->printf("%s:%03d/%03d ", temp.designator.substr(0, 2).c_str(), t, tt);
+            }
+            THEPANEL->lcd->setCursor(13, 1); // col, row
+            THEPANEL->lcd->printf("Y%7.2f", round(this->pos[2]));
+            break;
+        }
+        case 2:
+        {
+            THEPANEL->lcd->printf("%3d%%", this->current_speed);
+            THEPANEL->lcd->setCursor(6, 2); // col, row
+            THEPANEL->lcd->printf("%u%%", this->sd_pcnt_played);
+            THEPANEL->lcd->setCursor(13, 2); // col, row
+            THEPANEL->lcd->printf("Z%7.2f", this->pos[2]);
+            break;
+        }
+        case 3:
+        {
+            THEPANEL->lcd->printf("%02lu:%02lu %s", this->elapsed_time / 3600, (this->elapsed_time % 3600) / 60, this->get_status());
+            break;
+        }
+    }
+/*
+    switch ( line ) {
+        case 0:
+        {
             auto& tm= this->temp_controllers;
             if(tm.size() > 0) {
                 // only if we detected heaters in config
@@ -253,6 +298,7 @@ void WatchScreen::display_menu_line(uint16_t line)
         case 2: THEPANEL->lcd->printf("%3d%%  %02lu:%02lu:%02lu  %3u%%", this->current_speed, this->elapsed_time / 3600, (this->elapsed_time % 3600) / 60, this->elapsed_time % 60, this->sd_pcnt_played); break;
         case 3: THEPANEL->lcd->printf("%19s", this->get_status()); break;
     }
+*/
 }
 
 const char *WatchScreen::get_status()
@@ -274,7 +320,7 @@ const char *WatchScreen::get_status()
 
     const char *ip = get_network();
     if (ip == NULL) {
-        return "Smoothie ready";
+        return "Helsork ready";
     } else {
         return ip;
     }
